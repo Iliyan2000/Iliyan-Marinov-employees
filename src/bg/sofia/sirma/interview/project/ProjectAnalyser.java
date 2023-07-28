@@ -1,21 +1,16 @@
 package bg.sofia.sirma.interview.project;
 
 import bg.sofia.sirma.interview.CommonInfo;
-import bg.sofia.sirma.interview.CompareDates;
-import bg.sofia.sirma.interview.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ProjectAnalyser {
 
     private final List<ProjectWork> works;
+    private List<CommonInfo> commonWork;
 
     /**
      * Loads the dataset from the given {@code reader}.
@@ -37,23 +32,21 @@ public class ProjectAnalyser {
     /**
      * Calculate the two employees worked for the longest period of time on same project
      *
-     * @return the pair of two employees with the information when they worked on the project
+     * @return the pair of two employees with the common time spent on project
      */
-    public Pair longestPeriodTeam() {
+    public CommonInfo longestPeriodTeam() {
 
-        Map<ProjectWork, ProjectWork> mostTimeSpent = works.stream()
-                .collect(Collectors.toMap(Function.identity(), t -> t.mostCommonWork(works)));
-
-        Pair result = null;
+        CommonInfo result = null;
         long mostTimeSpentTogether = 0;
-        for (var entry : mostTimeSpent.entrySet()) {
+        prepareCommonWork();
 
-            long timeSpentTogether = CompareDates.daysBetween(entry.getKey(), entry.getValue());
+        for (var work : commonWork) {
 
-            if (timeSpentTogether > mostTimeSpentTogether) {
-                result = new Pair(entry.getKey(), entry.getValue());
-                mostTimeSpentTogether = timeSpentTogether;
+            if (work.commonDays() > mostTimeSpentTogether) {
+                result = work;
+                mostTimeSpentTogether = work.commonDays();
             }
+
         }
 
         return result;
@@ -68,40 +61,21 @@ public class ProjectAnalyser {
      */
     public List<CommonInfo> findCommonProjects(int empID1, int empID2) {
 
-        List<ProjectWork> emp1Works = works.stream().filter(t -> t.empID() == empID1).toList();
-        List<ProjectWork> emp2Works = works.stream().filter(t -> t.empID() == empID2).toList();
+        return commonWork.stream()
+                .filter(t -> t.empID1() == empID1 && t.empID2() == empID2)
+                .toList();
+    }
 
-        List<CommonInfo> result = new ArrayList<>();
-        for (ProjectWork work1 : emp1Works) {
+    /**
+     * Prepares information about employees working together
+     */
+    private void prepareCommonWork() {
 
-            long timeTogether = 0;
-            for (ProjectWork work2 : emp2Works) {
-                if (work1.projectID() == work2.projectID()) {
+        commonWork = works.stream()
+                .map(t -> t.mostCommonWork(works))
+                .filter(t -> t.commonDays() != 0)
+                .toList();
 
-                    timeTogether += CompareDates.daysBetween(work1, work2);
-
-                }
-            }
-
-            boolean flag = false;
-            for (CommonInfo work : result) {
-                if (work1.projectID() == work.getProjectID()) {
-
-                    work.addCommonDays(timeTogether);
-                    flag = true;
-                    break;
-
-                }
-            }
-
-            if (!flag && timeTogether > 0) {
-
-                result.add(new CommonInfo(empID1, empID2, work1.projectID(), timeTogether));
-
-            }
-        }
-
-        return result;
     }
 
 }

@@ -2,37 +2,7 @@ package bg.sofia.sirma.interview;
 
 import java.util.Objects;
 
-public class CommonInfo {
-
-    private final int empID1;
-    private final int empID2;
-    private final int projectID;
-    private long commonDays;
-
-    public CommonInfo(int empID1, int empID2, int projectID, long commonDays) {
-        this.empID1 = empID1;
-        this.empID2 = empID2;
-        this.projectID = projectID;
-        this.commonDays = commonDays;
-    }
-
-    /**
-     * Getter of projectID
-     *
-     * @return projectID
-     */
-    public int getProjectID() {
-        return projectID;
-    }
-
-    /**
-     * Adds additional days
-     *
-     * @param additionalDays number of days to be added
-     */
-    public void addCommonDays(long additionalDays) {
-        commonDays += additionalDays;
-    }
+public record CommonInfo(int empID1, int empID2, int projectID, long commonDays) {
 
     @Override
     public boolean equals(Object o) {

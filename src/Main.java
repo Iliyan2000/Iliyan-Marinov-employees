@@ -1,5 +1,4 @@
 import bg.sofia.sirma.interview.CommonInfo;
-import bg.sofia.sirma.interview.Pair;
 import bg.sofia.sirma.interview.project.ProjectAnalyser;
 
 import java.nio.file.Path;
@@ -13,11 +12,11 @@ public class Main {
         String file = scanner.nextLine();
 
         var projectAnalyser = new ProjectAnalyser(Path.of(file).toAbsolutePath());
-        Pair teamWorkedMostTogether = projectAnalyser.longestPeriodTeam();
+        CommonInfo teamWorkedMostTogether = projectAnalyser.longestPeriodTeam();
 
         List<CommonInfo> commonProjects = projectAnalyser
-                .findCommonProjects(teamWorkedMostTogether.key().empID(),
-                        teamWorkedMostTogether.value().empID());
+                .findCommonProjects(teamWorkedMostTogether.empID1(),
+                        teamWorkedMostTogether.empID2());
 
         System.out.println("empID1, empID2, projectID, Days worked");
         for (CommonInfo project : commonProjects) {
